@@ -1,0 +1,49 @@
+# ========================
+# Stage 1: Builder
+# ========================
+FROM python:3.11.4-slim-bullseye AS builder
+
+WORKDIR /usr/src/app
+
+COPY ./requirements.txt .
+
+# Install dependencies to a wheel cache directory
+RUN pip install --upgrade pip \
+    && pip wheel --no-cache-dir --wheel-dir=/usr/src/app/wheels -r requirements.txt
+
+# ========================
+# Stage 2: Runtime
+# ========================
+FROM python:3.11.4-slim-bullseye
+
+RUN mkdir -p /home/app
+
+RUN addgroup --system app && adduser --system --group app
+
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
+RUN mkdir $APP_HOME/mediafiles
+WORKDIR $APP_HOME
+
+# Install system dependencies (like netcat)
+RUN apt-get update && apt-get install -y --no-install-recommends netcat
+
+# Copy wheels and install them
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
+RUN pip install --upgrade pip && pip install --no-cache /wheels/*
+
+# Copy entrypoint
+COPY ./entrypoint.prod.sh .
+RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.prod.sh
+RUN chmod +x  $APP_HOME/entrypoint.prod.sh
+
+# Copy project files
+COPY . $APP_HOME
+
+RUN chown -R app:app $APP_HOME
+USER app
+
+ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
