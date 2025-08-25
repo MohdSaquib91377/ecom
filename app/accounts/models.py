@@ -6,7 +6,7 @@ from config.base import TimeStampModel
 from accounts.managers import UserManager
 
 class User(AbstractBaseUser, PermissionsMixin,TimeStampModel):
-    mobile = models.BigIntegerField(null=True, blank=True,unique=True)
+    mobile = models.CharField(max_length=10, null=True, blank=True, unique=True)
     is_mobile_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

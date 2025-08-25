@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
     TokenBlacklistView
 )
+from django.conf import settings
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -20,7 +21,9 @@ schema_view = get_schema_view(
         license=openapi.License(name="BSD License"),
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,),
+    permission_classes=[],  # Empty permissions for public access    
+    url='https://medilab.instaviv.com' if not settings.DEBUG else 'http://localhost:9005'
+
 )
 
 urlpatterns = [

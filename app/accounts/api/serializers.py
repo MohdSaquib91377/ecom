@@ -5,9 +5,23 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "mobile"]
-        extra_kwargs = {
-            "mobile": {"validators": []}  # disable default unique validator
-        }
+
+    def validate_mobile(self, value):
+        """
+        Custom validator for mobile numbers.
+        Ensures exactly 10 digits.
+        """
+        print(f"Validating mobile number: {value}")
+        
+        mobile_str = str(value).strip()
+        
+        if not mobile_str.isdigit():
+            raise serializers.ValidationError("Mobile number must contain only digits.")
+        
+        if len(mobile_str) != 10:
+            raise serializers.ValidationError("Mobile number must be exactly 10 digits.")
+
+        return mobile_str
 
     def create(self, validated_data):
         mobile = validated_data["mobile"]

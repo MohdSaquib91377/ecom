@@ -3,11 +3,11 @@ from otp.models import OTP
 from accounts.models import User
 
 class SendOTPSerializer(serializers.Serializer):
-    mobile = serializers.CharField(max_length=16)
+    mobile = serializers.CharField(max_length=10)
 
 
 class VerifyOTPSerializer(serializers.Serializer):
-    mobile = serializers.CharField(max_length=16)
+    mobile = serializers.CharField(max_length=10)
     otp = serializers.CharField(max_length=6)
 
     def validate(self, data):

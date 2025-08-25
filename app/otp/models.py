@@ -11,7 +11,7 @@ def generate_otp():
 
 
 class OTP(TimeStampModel):
-    mobile = models.CharField(max_length=16)
+    mobile = models.CharField(max_length=10)
     code = models.CharField(max_length=6, default=generate_otp)
     expires_at = models.DateTimeField()
     is_verified = models.BooleanField(default=False)

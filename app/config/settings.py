@@ -142,7 +142,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:1337","http://localhost:9006"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:1337","http://localhost:9006","https://medilab.instaviv.com"]
 AUTH_USER_MODEL = 'accounts.User'
 
 SWAGGER_SETTINGS = {
@@ -157,8 +157,6 @@ SWAGGER_SETTINGS = {
       }
    }
 }
-
-
 # OTP Service Configuration
 MSG91_TEMPLATE_ID=config('MSG91_TEMPLATE_ID')
 MSG91_AUTH_KEY=config('MSG91_AUTH_KEY')
