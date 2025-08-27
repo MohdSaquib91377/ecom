@@ -8,3 +8,5 @@ drf-yasg
 requests
 twilio
 djangorestframework-simplejwt[crypto]
+pillow
+django-jazzmin

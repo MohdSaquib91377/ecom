@@ -31,6 +31,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split()
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     # Built-in apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     "accounts",
     "otp",
     "tokens",
+    "store",
     
     # Third-party apps
     "rest_framework",
@@ -209,4 +211,77 @@ SIMPLE_JWT = {
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+
+JAZZMIN_SETTINGS = {
+    # Basic Branding
+    "site_title": "Admin",
+    "site_header": "Dashboard",
+    "site_brand": "Admin",
+
+    # Login Page
+    "welcome_sign": "Welcome to the Admin Portal",
+    "copyright": "© 2025 Library | All Rights Reserved",
+
+    # Search Models
+    "search_model": ["accounts.User", "store.Product"],
+
+    # Avatar Support (Optional, if you have user profile images)
+    "user_avatar": None,
+
+    # Top Menu Configuration — Add tabs for quick access 🚀
+    "topmenu_links": [
+        {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Products", "app": "store"},  # Will show Product, Category, Brand
+        {"name": "Accounts", "app": "accounts"},
+        {"name": "Otp", "app": "otps"},  # I
+        {"name": "Token", "app": "tokens"}# If you have an orders app
+    ],
+
+    # User Menu Options (Top-right dropdown)
+    "usermenu_links": [
+        {"model": "auth.user"},
+        {"name": "Profile", "url": "/admin/accounts/user/", "icon": "fas fa-user"},
+        {"name": "Support", "url": "https://support.example.com", "icon": "fas fa-life-ring"},
+        {"name": "Logout", "url": "/admin/logout/", "icon": "fas fa-sign-out-alt"},
+    ],
+
+    # Sidebar & Navigation
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": ["auth"],  # Hide built-in auth if unnecessary
+    "hide_models": ["auth.group"],
+    "order_with_respect_to": ["accounts", "otp", "store"],
+
+    # UI Tweaks 🎨
+    "custom_css": None,
+    "custom_js": None,
+    "show_ui_builder": False,
+    "use_google_fonts_cdn": True,
+
+    # Change Form Layout (Tabbed Editing)
+    "changeform_format": "horizontal_tabs",  # Options: single | horizontal_tabs | vertical_tabs | collapsible | carousel
+    "changeform_format_overrides": {
+        "store.Product": "horizontal_tabs",  # Product form in vertical tabs for better UX
+    },
+
+    # Icons for Apps and Models — Makes UI modern 🔥
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "store.Product": "fas fa-box",
+        "store.Category": "fas fa-layer-group",
+        "store.SubCategory": "fas fa-sitemap",
+        "store.Brand": "fas fa-tags",
+        "store.Image": "fas fa-image",
+        "store.RecentView": "fas fa-eye",
+        "accounts.User": "fas fa-user-shield",
+        "otp.OTP": "fas fa-key",
+
+    },
+
+    # Colors & Themes 🌈
+    "theme": "darkly",  # Use a premium dark theme
+    "dark_mode_theme": "darkly",  # Matches dark mode
 }
