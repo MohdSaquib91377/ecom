@@ -128,20 +128,28 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "static"
+
+# Add this line to make Django look in your staticfiles directory too
+STATICFILES_DIRS = [
+    BASE_DIR / 'staticfiles',  # This will include your existing staticfiles directory
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "mediafiles"
+
 
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:1337","http://localhost:9006","https://medilab.instaviv.com"]

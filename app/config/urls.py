@@ -10,6 +10,8 @@ from rest_framework_simplejwt.views import (
     TokenBlacklistView
 )
 from django.conf import settings
+from django.conf import settings
+from django.conf.urls.static import static
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -30,7 +32,13 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/otp/", include("otp.api.urls")),  # include OTP urls here
     path("api/accounts/", include("accounts.api.urls")),  # include Accounts urls here
+    path("api/store/", include("store.api.urls")),  # include Store urls here
     path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
     path("api/token/", include("tokens.api.urls")),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

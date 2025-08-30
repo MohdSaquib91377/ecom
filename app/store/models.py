@@ -23,6 +23,7 @@ class Category(TimeStampModel):
 
 
 class SubCategory(TimeStampModel):
+    image = models.ImageField(upload_to = 'sub_category/',max_length=255, blank=True, null=True)
     name = models.CharField(max_length=64)
     is_active = models.BooleanField(default=True)
     category = models.ForeignKey("Category",on_delete = models.CASCADE,related_name = "sub_categories",null= True)
@@ -53,9 +54,9 @@ class Product(TimeStampModel):
     is_active = models.BooleanField(default=True)
     quantity = models.PositiveIntegerField()
     description = models.TextField()
-    category = models.ForeignKey('Category',on_delete=models.CASCADE,related_name="products",null=True)
-    sub_category = models.ForeignKey('SubCategory',on_delete=models.CASCADE,related_name="products",null=True)
-    brand = models.ForeignKey(Brand,on_delete=models.CASCADE,related_name="products",null=True)
+    category = models.ForeignKey('Category',on_delete=models.CASCADE,related_name="products",null=True,blank=True)
+    sub_category = models.ForeignKey('SubCategory',on_delete=models.CASCADE,related_name="products",null=True,blank=True)
+    brand = models.ForeignKey(Brand,on_delete=models.CASCADE,related_name="products",null=True,blank=True)
     class Meta:
         db_table = "products"
         ordering = ["-created_at"]
