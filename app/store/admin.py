@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from django.http import JsonResponse
-from .models import Category, Brand, Product, Image, SubCategory, RecentView
+from .models import Category, Brand, Product, Image, SubCategory, RecentView, Wishlist
 
 
 # ==============================
@@ -98,3 +98,10 @@ class RecentViewAdmin(admin.ModelAdmin):
     search_fields = ["product__name", "user__username"]
 
 admin.site.register(RecentView, RecentViewAdmin)
+
+
+class WishListAdmin(admin.ModelAdmin):
+    list_display = ["id", "product", "user"]
+    search_fields = ["product__name", "user__username"]
+
+admin.site.register(Wishlist, WishListAdmin)

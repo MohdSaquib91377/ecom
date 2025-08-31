@@ -34,7 +34,7 @@ class SubCategory(TimeStampModel):
         return self.name
      
     def __str__(self) -> str:
-        return f"{self.name} -> {self.category.name}"
+        return f"{self.name}"
 
 class Brand(TimeStampModel):
     name = models.CharField(max_length=64)
@@ -85,6 +85,18 @@ class Image(TimeStampModel):
         output_size = (500,400)
         img.thumbnail(output_size)
         img.save(self.image.path)
+
+
+
+class Wishlist(TimeStampModel):
+    product = models.ForeignKey(Product,related_name = "wishlist", on_delete = models.CASCADE)
+    user = models.ForeignKey("accounts.User",related_name = "wishlist", on_delete = models.CASCADE)
+
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.product.name}"
 
 
     

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'django_filters'
 
 
 ]
@@ -179,7 +180,9 @@ TWILIO_PHONE_NUMBER=config('TWILIO_PHONE_NUMBER')
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'PAGE_SIZE': 10,  # Number of items per page
+
 }
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
@@ -286,6 +289,8 @@ JAZZMIN_SETTINGS = {
         "store.RecentView": "fas fa-eye",
         "accounts.User": "fas fa-user-shield",
         "otp.OTP": "fas fa-key",
+        "store.Wishlist": "fas fa-heart",  # <-- Added Wishlist icon here
+
 
     },
 

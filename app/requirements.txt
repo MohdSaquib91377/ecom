@@ -10,3 +10,4 @@ twilio
 djangorestframework-simplejwt[crypto]
 pillow
 django-jazzmin
+django-filter

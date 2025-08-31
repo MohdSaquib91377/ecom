@@ -5,6 +5,9 @@ from store.api.views import (
     ProductListByCategoryView,
     ProductListBySubCategoryView,
     ProductDetailView,
+    ProductSearchView,
+    WishListAPIView
+    
 )
 
 urlpatterns = [
@@ -13,4 +16,7 @@ urlpatterns = [
     path("subcategories/", SubCategoryListView.as_view(), name="subcategory-list"),
     path("subcategories/<int:subcategory_id>/products/", ProductListBySubCategoryView.as_view(), name="product-by-subcategory"),
     path("products/<int:pk>/", ProductDetailView.as_view(), name="product-detail"),
+    path("products/search/", ProductSearchView.as_view(), name="product-search"),
+    path('wishlist/add-to-wishlist/',WishListAPIView.as_view(),name = "add-to-wishlist")
+
 ]
