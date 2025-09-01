@@ -290,6 +290,8 @@ JAZZMIN_SETTINGS = {
         "accounts.User": "fas fa-user-shield",
         "otp.OTP": "fas fa-key",
         "store.Wishlist": "fas fa-heart",  # <-- Added Wishlist icon here
+        "store.Cart": "fas fa-shopping-cart",       # <-- Added Cart icon here
+        "store.CartItem": "fas fa-shopping-basket"  # <-- Added CartItem icon here
 
 
     },

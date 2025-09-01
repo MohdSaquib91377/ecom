@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from store.models import Category, SubCategory, Product, Image,Wishlist
+from store.models import Category, SubCategory, Product, Image,Wishlist,Cart,CartItem
 from accounts.api.serializers import UserRegisterSerializer
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -52,3 +52,39 @@ class WishListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wishlist
         fields = "__all__"
+
+class AddCartItemInputSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
+    quantity = serializers.IntegerField(default=1)
+
+class UpdateCartItemInputSerializer(serializers.Serializer):
+    item_id = serializers.IntegerField()
+    action = serializers.ChoiceField(choices=['add', 'remove'])
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = CartItem
+        fields = ["id", "product", "product_id", "quantity", "subtotal"]
+        read_only_fields = ["subtotal"]
+
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+    total_price = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Cart
+        fields = ["id", "items", "total_price"]
+
+
+    
+class MergeCartItemSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
+    quantity = serializers.IntegerField(default=1)
+
+class MergeCartInputSerializer(serializers.Serializer):
+    items = MergeCartItemSerializer(many=True)

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from django.http import JsonResponse
-from .models import Category, Brand, Product, Image, SubCategory, RecentView, Wishlist
+from .models import Category, Brand, Product, Image, SubCategory, RecentView, Wishlist,CartItem,Cart
 
 
 # ==============================
@@ -105,3 +105,43 @@ class WishListAdmin(admin.ModelAdmin):
     search_fields = ["product__name", "user__username"]
 
 admin.site.register(Wishlist, WishListAdmin)
+
+
+
+
+
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 1
+    fields = ("product", "quantity", "subtotal")
+    readonly_fields = ("subtotal",)
+
+    def subtotal(self, obj):
+        return obj.subtotal
+    subtotal.short_description = "Subtotal (₹)"
+
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "total_price", "item_count")
+    search_fields = ("user__username", "user__email")
+    list_filter = ("user",)
+    inlines = [CartItemInline]
+    readonly_fields = ("total_price",)
+
+    def item_count(self, obj):
+        return obj.items.count()
+    item_count.short_description = "Items"
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ("id", "cart", "product", "quantity", "subtotal")
+    search_fields = ("product__name", "cart__user__username")
+    list_filter = ("cart", "product")
+
+    readonly_fields = ("subtotal",)
+
+    def subtotal(self, obj):
+        return obj.subtotal
+    subtotal.short_description = "Subtotal (₹)"

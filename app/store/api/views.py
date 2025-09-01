@@ -1,14 +1,17 @@
 from rest_framework import generics, status,filters
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
-from store.models import Category, SubCategory, Product,Wishlist
-from store.api.serializers import CategorySerializer, SubCategorySerializer, ProductSerializer,WishListCreateDeleteSerializer,WishListSerializer
+from store.models import Cart, CartItem, Category, SubCategory, Product,Wishlist
+from store.api.serializers import AddCartItemInputSerializer, CartSerializer, CategorySerializer, MergeCartInputSerializer, SubCategorySerializer, ProductSerializer, UpdateCartItemInputSerializer,WishListCreateDeleteSerializer,WishListSerializer
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 import django_filters
 from drf_yasg import openapi
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from django.shortcuts import get_object_or_404
+
+
 
 # 1. Get all categories (ListAPIView)
 class CategoryListView(generics.ListAPIView):
@@ -197,3 +200,124 @@ class WishListAPIView(APIView):
             Wishlist.objects.filter(product = product,user = request.user).delete()
             return Response({"status": "200","message":"Product removed from wishlist"},status = 203)
         return Response({"status": "400","message":"You dont have permission to remove product from wishlist"},status = 400)
+
+
+
+# TODO: Cart
+
+class CartView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(tags=['cart'])
+    def get(self, request):
+        """Get user's cart."""
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(tags=['cart'], request_body=AddCartItemInputSerializer)
+    def post(self, request):
+        """Add product to cart."""
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        serializer = AddCartItemInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        product_id = serializer.validated_data["product_id"]
+        quantity = serializer.validated_data["quantity"]
+
+        product = get_object_or_404(Product, id=product_id)
+        if product.quantity < quantity:
+            return Response({"error": "Not enough stock"}, status=400)
+
+        cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
+        cart_item.quantity = quantity
+        cart_item.save()
+
+        return Response({"message": "Product added to cart"})
+   
+    @swagger_auto_schema(tags=['cart'], request_body=UpdateCartItemInputSerializer)
+    def patch(self, request):
+        """Increment, decrement, or set quantity of a cart item."""
+        serializer = UpdateCartItemInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        item_id = serializer.validated_data["item_id"]
+        action = serializer.validated_data["action"]
+
+        cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+
+        if action == "add":
+            new_quantity = cart_item.quantity + 1
+        elif action == "remove":
+            new_quantity = cart_item.quantity - 1
+        else:
+            return Response({"error": "Invalid action"}, status=400)
+
+        # Remove item if quantity <= 0
+        if new_quantity <= 0:
+            cart_item.delete()
+            return Response({"message": "Item removed successfully"})
+
+        # Check stock
+        if cart_item.product.quantity < new_quantity:
+            return Response({"error": "Not enough stock available"}, status=400)
+
+        cart_item.quantity = new_quantity
+        cart_item.save()
+
+        cart = cart_item.cart
+        total_price = cart.total_price
+
+        return Response({
+            "message": "Cart updated successfully",
+            "item_id": cart_item.id,
+            "quantity": cart_item.quantity,
+            "item_subtotal": cart_item.subtotal,
+            "cart_total": total_price
+        })
+
+
+
+class MergeCartView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(tags=['cart'], request_body=MergeCartInputSerializer)
+    def post(self, request):
+        """
+        Merge guest cart after login.
+        Example input:
+        {
+            "items": [
+                {"product_id": 1, "quantity": 2},
+                {"product_id": 3, "quantity": 1}
+            ]
+        }
+        """
+        serializer = MergeCartInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        guest_items = serializer.validated_data.get("items", [])
+
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+
+        messages = []
+
+        for item in guest_items:
+            product = get_object_or_404(Product, id=item["product_id"])
+            quantity = item.get("quantity", 1)
+
+            if product.quantity <= 0:
+                messages.append(f"{product.name} is out of stock and was not added.")
+                continue
+
+            if product.quantity < quantity:
+                messages.append(f"{product.name} quantity reduced to {product.quantity} due to limited stock.")
+                quantity = product.quantity
+
+            cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product)
+            cart_item.quantity = quantity
+            cart_item.save()
+
+        cart_serializer = CartSerializer(cart)
+        return Response({
+            "cart": cart_serializer.data,
+            "messages": messages
+        })
+
