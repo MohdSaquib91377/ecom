@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User
+from .models import User,Address
 
 class UsersAdmin(UserAdmin):
     model = User
@@ -22,3 +22,20 @@ class UsersAdmin(UserAdmin):
 
 
 admin.site.register(User, UsersAdmin)
+
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "name",
+        "phone",
+        "city",
+        "state",
+        "address_type",
+        "is_default",
+        "created_at",
+    )
+    list_filter = ("address_type", "city", "state", "is_default")
+    search_fields = ("name", "phone", "city", "state", "pincode", "address")
+    ordering = ("-created_at",)

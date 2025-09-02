@@ -12,3 +12,4 @@ pillow
 django-jazzmin
 django-filter
 django-cors-headers
+razorpay

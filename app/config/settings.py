@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "otp",
     "tokens",
     "store",
+    "orders",
     
     # Third-party apps
     "corsheaders",
@@ -279,24 +280,28 @@ JAZZMIN_SETTINGS = {
     },
 
     # Icons for Apps and Models — Makes UI modern 🔥
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
-        "store.Product": "fas fa-box",
-        "store.Category": "fas fa-layer-group",
-        "store.SubCategory": "fas fa-sitemap",
-        "store.Brand": "fas fa-tags",
-        "store.Image": "fas fa-image",
-        "store.RecentView": "fas fa-eye",
-        "accounts.User": "fas fa-user-shield",
-        "otp.OTP": "fas fa-key",
-        "store.Wishlist": "fas fa-heart",  # <-- Added Wishlist icon here
-        "store.Cart": "fas fa-shopping-cart",       # <-- Added Cart icon here
-        "store.CartItem": "fas fa-shopping-basket"  # <-- Added CartItem icon here
+ "icons": {
+    "auth": "fas fa-users-cog",
+    "auth.user": "fas fa-user",
+    "auth.Group": "fas fa-users",
+    "store.Product": "fas fa-box",
+    "store.Category": "fas fa-layer-group",
+    "store.SubCategory": "fas fa-sitemap",
+    "store.Brand": "fas fa-tags",
+    "store.Image": "fas fa-image",
+    "store.RecentView": "fas fa-eye",
+    "accounts.User": "fas fa-user-shield",
+    "otp.OTP": "fas fa-key",
+    "store.Wishlist": "fas fa-heart",
+    "store.Cart": "fas fa-shopping-cart",
+    "store.CartItem": "fas fa-shopping-basket",
+    "accounts.Address": "fas fa-map-marker-alt",
+    "orders.Order": "fas fa-shopping-bag",
+    "orders.OrderItem": "fas fa-box-open",
+    "orders.Payment": "fas fa-credit-card"
 
+},
 
-    },
 
     # Colors & Themes 🌈
     "theme": "darkly",  # Use a premium dark theme
@@ -313,3 +318,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET")

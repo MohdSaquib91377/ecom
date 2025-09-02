@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import User
+from accounts.models import User,Address
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,3 +46,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["mobile", "created_at"]
+
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = "__all__"
+        read_only_fields = ["user", "created_at", "updated_at"]

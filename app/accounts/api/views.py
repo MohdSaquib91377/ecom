@@ -1,11 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from accounts.api.serializers import UserRegisterSerializer,ProfileSerializer,UpdateMobileSerializer
+from rest_framework import status,viewsets
+from accounts.api.serializers import UserRegisterSerializer,ProfileSerializer,UpdateMobileSerializer,AddressSerializer
 from drf_yasg.utils import swagger_auto_schema
 from otp.services import OTPManager, TwilioOTPService, Msg91OTPService
 from rest_framework.permissions import IsAuthenticated
-from accounts.models import User
+from accounts.models import User,Address
 from otp.models import OTP
 
 class UserRegisterView(APIView):
@@ -109,3 +109,18 @@ class UpdateMobileView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+
+class AddressViewSet(viewsets.ModelViewSet):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Users can only access their own addresses
+        return Address.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Automatically assign the logged-in user
+        serializer.save(user=self.request.user)
