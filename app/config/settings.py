@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "store",
     
     # Third-party apps
+    "corsheaders",
     "rest_framework",
     "drf_yasg",
     'rest_framework_simplejwt',
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -153,7 +155,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:1337","http://localhost:9006","https://medilab.instaviv.com"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:1337","http://localhost:9006","https://medilab.instaviv.com","http://localhost:5173","http://localhost:3000"]
 AUTH_USER_MODEL = 'accounts.User'
 
 SWAGGER_SETTINGS = {
@@ -300,3 +302,14 @@ JAZZMIN_SETTINGS = {
     "theme": "darkly",  # Use a premium dark theme
     "dark_mode_theme": "darkly",  # Matches dark mode
 }
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
