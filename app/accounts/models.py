@@ -7,6 +7,7 @@ from accounts.managers import UserManager
 
 class User(AbstractBaseUser, PermissionsMixin,TimeStampModel):
     mobile = models.CharField(max_length=10, null=True, blank=True, unique=True)
+    email = models.EmailField(max_length=255, null=True, blank=True, unique=True)
     is_mobile_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

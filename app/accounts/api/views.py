@@ -110,17 +110,18 @@ class UpdateMobileView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-
 class AddressViewSet(viewsets.ModelViewSet):
     serializer_class = AddressSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Users can only access their own addresses
+        # ✅ Fix Swagger schema generation issue
+        if getattr(self, "swagger_fake_view", False):
+            return Address.objects.none()
+
+        # ✅ For real API requests → fetch only logged-in user's addresses
         return Address.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Automatically assign the logged-in user
+        # ✅ Automatically assign the logged-in user
         serializer.save(user=self.request.user)
