@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from store.models import Product
 from config.base import TimeStampModel
-
+from accounts.models import Address,User
 # --------------------------
 # ORDER MODEL
 # --------------------------
@@ -23,10 +23,10 @@ class Order(TimeStampModel):
         ("STRIPE", "Stripe"),
     )
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default="COD")
-    shipping_address = models.TextField()
+    shipping_address = models.ForeignKey(Address, on_delete=models.PROTECT, related_name="orders")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_paid = models.BooleanField(default=False)
     razorpay_order_id = models.CharField(max_length=255, blank=True, null=True)

@@ -33,6 +33,7 @@ urlpatterns = [
     path("api/otp/", include("otp.api.urls")),  # include OTP urls here
     path("api/accounts/", include("accounts.api.urls")),  # include Accounts urls here
     path("api/store/", include("store.api.urls")),  # include Store urls here
+    path("api/orders/", include("orders.api.urls")),  # include Orders urls here
     path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
     path("api/token/", include("tokens.api.urls")),
 
