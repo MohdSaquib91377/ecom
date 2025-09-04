@@ -1,4 +1,4 @@
-from orders.api.serializers import CreateOrderSerializer
+from orders.api.serializers import CreateOrderSerializer, OrderDetailSerializer, OrderListSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -10,7 +10,9 @@ from orders.models import Order, OrderItem, Payment
 from accounts.models import Address
 from django.conf import settings
 import razorpay
+from django.shortcuts import get_object_or_404
 
+from django.core.paginator import Paginator
 
 class CreateOrderAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -123,3 +125,71 @@ class CreateOrderAPIView(APIView):
                 "currency": "INR",
                 "message": "Order placed successfully. Pay cash on delivery."
             }, status=status.HTTP_201_CREATED)
+
+
+
+
+
+
+# -------------------------------
+# USER ORDERS LIST API
+# -------------------------------
+class UserOrdersAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Get User Orders",
+        operation_description="Fetch a paginated list of logged-in user's orders.",
+        responses={200: openapi.Response(description="Orders fetched successfully")},
+    )
+    def get(self, request):
+        user = request.user
+        page = int(request.GET.get("page", 1))
+        limit = int(request.GET.get("limit", 5))
+
+        orders_qs = (
+            Order.objects.filter(user=user)
+            .select_related("shipping_address")
+            .prefetch_related("items", "items__product")
+            .order_by("-created_at")
+        )
+
+        paginator = Paginator(orders_qs, limit)
+        orders = paginator.get_page(page)
+
+        serializer = OrderListSerializer(orders, many=True)
+
+        return Response({
+            "success": True,
+            "total_orders": paginator.count,
+            "total_pages": paginator.num_pages,
+            "current_page": page,
+            "orders": serializer.data,
+        }, status=status.HTTP_200_OK)
+
+
+# -------------------------------
+# USER ORDER DETAIL API
+# -------------------------------
+class UserOrderDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Get Order Details",
+        operation_description="Fetch full details of a specific order including items.",
+        responses={200: openapi.Response(description="Order details fetched successfully")},
+    )
+    def get(self, request, order_id):
+        user = request.user
+        order = get_object_or_404(
+            Order.objects.select_related("shipping_address")
+            .prefetch_related("items", "items__product"),
+            id=order_id,
+            user=user
+        )
+
+        serializer = OrderDetailSerializer(order)
+        return Response({
+            "success": True,
+            "order": serializer.data
+        }, status=status.HTTP_200_OK)
