@@ -12,6 +12,15 @@ from django.conf import settings
 import razorpay
 from django.shortcuts import get_object_or_404
 
+
+import hmac
+import hashlib
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.encoding import force_bytes
+
+
 from django.core.paginator import Paginator
 
 class CreateOrderAPIView(APIView):
@@ -193,3 +202,64 @@ class UserOrderDetailAPIView(APIView):
             "success": True,
             "order": serializer.data
         }, status=status.HTTP_200_OK)
+
+
+
+
+
+@csrf_exempt
+def razorpay_webhook(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    # Get the webhook body
+    webhook_body = request.body.decode("utf-8")
+    webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
+
+    # Verify signature
+    received_signature = request.headers.get("X-Razorpay-Signature")
+    generated_signature = hmac.new(
+        key=force_bytes(webhook_secret),
+        msg=force_bytes(webhook_body),
+        digestmod=hashlib.sha256
+    ).hexdigest()
+
+    if received_signature != generated_signature:
+        return JsonResponse({"error": "Invalid signature"}, status=400)
+
+    # Parse webhook payload
+    payload = json.loads(webhook_body)
+    event = payload.get("event")
+    payment_data = payload.get("payload", {}).get("payment", {}).get("entity", {})
+
+    # Extract payment details
+    razorpay_payment_id = payment_data.get("id")
+    amount = payment_data.get("amount") / 100
+    status = payment_data.get("status")
+    order_id = payment_data.get("order_id")  # Razorpay order ID
+
+    try:
+        payment = Payment.objects.get(razorpay_payment_id=razorpay_payment_id)
+    except Payment.DoesNotExist:
+        return JsonResponse({"error": "Payment not found"}, status=404)
+
+    # Handle events
+    if event == "payment.captured":
+        payment.status = "SUCCESS"
+        payment.save()
+
+        # Update Order Status
+        order = Order.objects.get(id=payment.order.id)
+        order.status = "CONFIRMED"
+        order.save()
+
+    elif event == "payment.failed":
+        payment.status = "FAILED"
+        payment.save()
+
+        # Update Order Status
+        order = Order.objects.get(id=payment.order.id)
+        order.status = "FAILED"
+        order.save()
+
+    return JsonResponse({"status": "ok"}, status=200)
